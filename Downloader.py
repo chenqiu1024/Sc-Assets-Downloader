@@ -4,11 +4,14 @@ import os
 import sys
 import json
 import ctypes
+import ssl
 
 from threading import Thread
 from urllib.request import urlopen
 
 from AssetsDecompressor import Decompress
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class Downloader(Thread):
