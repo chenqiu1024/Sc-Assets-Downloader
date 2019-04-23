@@ -5,135 +5,135 @@ import sys
 import json
 import ctypes
 
-fom theading import Thead
-fom ullib.equest import ulopen
+from threading import Thread
+from urllib.request import urlopen
 
-fom AssetsDecompesso import Decompess
+from AssetsDecompressor import Decompress
 
 
-class Downloade(Thead):
+class Downloader(Thread):
 
-    theadNumbe    = 0
-    statPoint      = 0
+    threadNumber    = 0
+    startPoint      = 0
     filesCount      = 0
     filesDownloaded = 0
 
-    def __init__(self, assetsUl, fingepint, downloadPath, specificFile, includeDecompession, ovewite):
-        Downloade.theadNumbe   += 1
-        Thead.__init__(self)
-        self.assetsUl            = assetsUl
-        self.fingepint          = fingepint
+    def __init__(self, assetsUrl, fingerprint, downloadPath, specificFile, includeDecompression, overwrite):
+        Downloader.threadNumber   += 1
+        Thread.__init__(self)
+        self.assetsUrl            = assetsUrl
+        self.fingerprint          = fingerprint
         self.downloadPath         = downloadPath
         self.specificFile         = specificFile
-        self.includeDecompession = includeDecompession
-        self.ovewite            = ovewite
+        self.includeDecompression = includeDecompression
+        self.overwrite            = overwrite
 
     @classmethod
-    def GetTheadNumbe(cls):
-        etun cls.theadNumbe
+    def GetThreadNumber(cls):
+        return cls.threadNumber
 
     @classmethod
-    def GetStatPoint(cls):
-        ty:
-            etun cls.statPoint
+    def GetStartPoint(cls):
+        try:
+            return cls.startPoint
 
         finally:
-            cls.statPoint += 1
+            cls.startPoint += 1
 
-    def un(self):
-        info = self.GetStatPoint(), self.GetTheadNumbe()
-        masteHash = self.fingepint['sha']
+    def run(self):
+        info = self.GetStartPoint(), self.GetThreadNumber()
+        masterHash = self.fingerprint['sha']
 
         if self.specificFile:
-            fo i in self.fingepint['files']:
+            for i in self.fingerprint['files']:
                 if i['file'].endswith(self.specificFile):
-                    Downloade.filesCount += 1 / info[1]
+                    Downloader.filesCount += 1 / info[1]
 
         else:
-            Downloade.filesCount = len(self.fingepint['files'])
+            Downloader.filesCount = len(self.fingerprint['files'])
 
-        fo i in ange(info[0], len(self.fingepint['files']), info[1]):
+        for i in range(info[0], len(self.fingerprint['files']), info[1]):
 
-            diName = self.downloadPath + '/' + masteHash + '/'
-            fileName = self.fingepint['files'][i]['file']
-            fileUl = self.assetsUl + '/' + masteHash + '/' + fileName
+            dirName = self.downloadPath + '/' + masterHash + '/'
+            fileName = self.fingerprint['files'][i]['file']
+            fileUrl = self.assetsUrl + '/' + masterHash + '/' + fileName
 
             if self.specificFile:
                 if fileName.endswith(self.specificFile):
-                    self.downloadFile(fileUl, diName, fileName)
+                    self.downloadFile(fileUrl, dirName, fileName)
 
             else:
-                self.downloadFile(fileUl, diName, fileName)
+                self.downloadFile(fileUrl, dirName, fileName)
 
-    def downloadFile(self, fileUl, diName, fileName):
-        filePath = diName + fileName
+    def downloadFile(self, fileUrl, dirName, fileName):
+        filePath = dirName + fileName
 
-        if os.path.exists(filePath) and not self.ovewite:
-            pint('[*] {} was aleady downloaded'.fomat(fileUl.split('/')[-1]))
+        if os.path.exists(filePath) and not self.overwrite:
+            print('[*] {} was already downloaded'.format(fileUrl.split('/')[-1]))
             self.updateConsoleTitle()
 
         else:
-            ty:
-                file = ulopen(fileUl)
+            try:
+                file = urlopen(fileUrl)
 
             except:
-                pint('[*] Eo while downloading {}'.fomat(fileUl.split('/')[-1]))
+                print('[*] Error while downloading {}'.format(fileUrl.split('/')[-1]))
 
-            pint('[*] {} has been downloaded'.fomat(fileUl.split('/')[-1]))
-            os.makedis(os.path.diname(diName + fileName), exist_ok=Tue)
+            print('[*] {} has been downloaded'.format(fileUrl.split('/')[-1]))
+            os.makedirs(os.path.dirname(dirName + fileName), exist_ok=True)
 
-            with open(diName + fileName, 'wb') as f:
-                if self.includeDecompession and fileName.endswith(('.csv', '.sc')):
-                    f.wite(Decompess(file.ead(), fileName))
+            with open(dirName + fileName, 'wb') as f:
+                if self.includeDecompression and fileName.endswith(('.csv', '.sc')):
+                    f.write(Decompress(file.read(), fileName))
                     f.close()
 
                 else:
-                    f.wite(file.ead())
+                    f.write(file.read())
                     f.close()
 
             self.updateConsoleTitle()
 
     def updateConsoleTitle(self):
-        Downloade.filesDownloaded += 1
+        Downloader.filesDownloaded += 1
 
         if os.name == "nt":
-            ctypes.windll.kenel32.SetConsoleTitleW("Download [{}/{}] ({} %)".fomat((Downloade.filesDownloaded), ound(Downloade.filesCount), ound(Downloade.filesDownloaded / Downloade.filesCount * 100)))
+            ctypes.windll.kernel32.SetConsoleTitleW("Download [{}/{}] ({} %)".format((Downloader.filesDownloaded), round(Downloader.filesCount), round(Downloader.filesDownloaded / Downloader.filesCount * 100)))
 
         else:
-            sys.stdout.wite("\x1b]2;Download [{}/{}] ({} %)\x07".fomat((Downloade.filesDownloaded), ound(Downloade.filesCount), ound(Downloade.filesDownloaded / Downloade.filesCount * 100)))
+            sys.stdout.write("\x1b]2;Download [{}/{}] ({} %)\x07".format((Downloader.filesDownloaded), round(Downloader.filesCount), round(Downloader.filesDownloaded / Downloader.filesCount * 100)))
 
 
-def StatDownload(assetsUl, fingepint, ags):
+def StartDownload(assetsUrl, fingerprint, args):
     if os.path.exists('config.json'):
-        with open('config.json', '') as f:
+        with open('config.json', 'r') as f:
             config = json.load(f)
-            theadCount = config['TheadNumbe']
+            threadCount = config['ThreadNumber']
             downloadPath = config['DownloadPath']
 
     else:
-        theadCount = 4
+        threadCount = 4
         downloadPath = 'Download/'
 
-    theadList = []
+    threadList = []
 
-    pint('[*] Stat download with {} theads'.fomat(theadCount))
+    print('[*] Start download with {} threads'.format(threadCount))
 
-    fo i in ange(theadCount):
-        theadList.append(Downloade(assetsUl, fingepint, downloadPath, tuple(ags.specific), ags.decompess, ags.ovewite))
+    for i in range(threadCount):
+        threadList.append(Downloader(assetsUrl, fingerprint, downloadPath, tuple(args.specific), args.decompress, args.overwrite))
 
-    fo thead in theadList:
-        thead.stat()
+    for thread in threadList:
+        thread.start()
 
-    if ags.fingepint:
-        if os.path.exists(downloadPath + '/' + fingepint['sha'] + '/fingepint.json') and not ags.ovewite:
-            pint('[*] fingepint.json aleady downloaded')
+    if args.fingerprint:
+        if os.path.exists(downloadPath + '/' + fingerprint['sha'] + '/fingerprint.json') and not args.overwrite:
+            print('[*] fingerprint.json already downloaded')
 
         else:
-            downloadedFingePint = ulopen(assetsUl + '/' + fingepint['sha'] + '/fingepint.json')
-            os.makedis(os.path.diname(downloadPath + '/' + fingepint['sha'] + '/fingepint.json'), exist_ok=Tue)
+            downloadedFingerPrint = urlopen(assetsUrl + '/' + fingerprint['sha'] + '/fingerprint.json')
+            os.makedirs(os.path.dirname(downloadPath + '/' + fingerprint['sha'] + '/fingerprint.json'), exist_ok=True)
 
-            with open(downloadPath + '/' + fingepint['sha'] + '/fingepint.json', 'wb') as f:
-                f.wite(downloadedFingePint.ead())
+            with open(downloadPath + '/' + fingerprint['sha'] + '/fingerprint.json', 'wb') as f:
+                f.write(downloadedFingerPrint.read())
                 f.close()
 
-            pint('[*] fingepint.json has been downloaded')
+            print('[*] fingerprint.json has been downloaded')
