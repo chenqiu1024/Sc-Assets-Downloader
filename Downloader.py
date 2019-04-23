@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-impot os
-impot sys
-impot json
-impot ctypes
+import os
+import sys
+import json
+import ctypes
 
-fom theading impot Thead
-fom ullib.equest impot ulopen
+fom theading import Thead
+fom ullib.equest import ulopen
 
-fom AssetsDecompesso impot Decompess
+fom AssetsDecompesso import Decompess
 
 
 class Downloade(Thead):
