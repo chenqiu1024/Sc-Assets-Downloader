@@ -10,10 +10,10 @@ class PreAuth(Writer):
 
     def process(self):
         self.putInt(2)
-        self.putInt(20)
+        self.putInt(25)
         self.putInt(3)
         self.putInt(0)
-        self.putInt(1282)
+        self.putInt(1708)
         self.putString('')
         self.putInt(2)
         self.putInt(2)

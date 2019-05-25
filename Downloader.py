@@ -4,14 +4,11 @@ import os
 import sys
 import json
 import ctypes
-import ssl
 
 from threading import Thread
 from urllib.request import urlopen
 
 from AssetsDecompressor import Decompress
-
-ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class Downloader(Thread):
@@ -76,7 +73,12 @@ class Downloader(Thread):
             self.updateConsoleTitle()
 
         else:
-            file = urlopen(fileUrl)
+            try:
+                file = urlopen(fileUrl)
+
+            except:
+                print('[*] Error while downloading {}'.format(fileUrl.split('/')[-1]))
+
             print('[*] {} has been downloaded'.format(fileUrl.split('/')[-1]))
             os.makedirs(os.path.dirname(dirName + fileName), exist_ok=True)
 
